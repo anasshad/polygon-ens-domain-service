@@ -28,7 +28,5 @@ export type { ERC165 } from "./@openzeppelin/contracts/utils/introspection/ERC16
 export { ERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/ERC165__factory";
 export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC165";
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
-export type { YourContract } from "./contracts/YourContract";
-export { YourContract__factory } from "./factories/contracts/YourContract__factory";
-export type { YourNFT } from "./contracts/YourNFT";
-export { YourNFT__factory } from "./factories/contracts/YourNFT__factory";
+export type { Domains } from "./contracts/Domain.sol/Domains";
+export { Domains__factory } from "./factories/contracts/Domain.sol/Domains__factory";
