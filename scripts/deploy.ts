@@ -4,7 +4,7 @@
 // When running the script with `hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 import fs from 'fs';
-import { config, ethers } from 'hardhat';
+import { config, ethers, run } from 'hardhat';
 
 async function main() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -17,33 +17,39 @@ async function main() {
   // fs.unlinkSync(`${config.paths.artifacts}/contracts/contractAddress.ts`);
 
   // We get the contract to deploy
-  const YourContract = await ethers.getContractFactory('YourContract');
-  const contract = await YourContract.deploy();
+  const YourContract = await ethers.getContractFactory('Domains');
+  const contract = await YourContract.deploy('lit');
   await contract.deployed();
-  console.log('YourContract deployed to:', contract.address);
+  console.log('Domains deployed to:', contract.address);
 
-  const YourNFT = await ethers.getContractFactory('YourNFT');
-  const YourNFTContract = await YourNFT.deploy();
-  await YourNFTContract.deployed();
-  console.log('YourNFT deployed to:', YourNFTContract.address);
+  //wait for 5 block transactions to ensure deployment before verifying
+
+  // await contract.deployTransaction.wait(5);
+
+  //verify
+
+  // await run("verify:verify", {
+  //   address: contract.address,
+  //   contract: "contracts/Domain.sol:Domains", //Filename.sol:ClassName
+  //   constructorArguments: ['lit'],
+  // });
+
   saveFrontendFiles(
     contract.address,
-    'YourContract',
-    YourNFTContract.address,
-    'YourNFTContract'
+    'Domains'
   );
+
+
 }
 
 // https://github.com/nomiclabs/hardhat-hackathon-boilerplate/blob/master/scripts/deploy.js
 function saveFrontendFiles(
   contractAddress: string,
-  contractName: string,
-  nftContractAddress: string,
-  nftContractName: string
+  contractName: string
 ) {
   fs.writeFileSync(
     `${config.paths.artifacts}/contracts/contractAddress.ts`,
-    `export const ${contractName} = '${contractAddress}'\nexport const ${nftContractName} = '${nftContractAddress}'\n`
+    `export const ${contractName} = '${contractAddress}'`
   );
 }
 
