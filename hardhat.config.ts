@@ -15,7 +15,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.PRIVATE_KEY]
     },
     hardhat: {
-      chainId: 1337, // We set 1337 to make interacting with MetaMask simpler
+      chainId: 31337, // We set 1337 to make interacting with MetaMask simpler
     },
   },
   etherscan: {

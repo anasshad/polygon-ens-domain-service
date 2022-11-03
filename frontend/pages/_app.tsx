@@ -1,89 +1,58 @@
-import { ChakraProvider } from '@chakra-ui/react'
-import {
-  connectorsForWallets,
-  darkTheme,
-  getDefaultWallets,
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit'
-import {
-  GetSiweMessageOptions,
-  RainbowKitSiweNextAuthProvider,
-} from '@rainbow-me/rainbowkit-siwe-next-auth'
-import '@rainbow-me/rainbowkit/styles.css'
-import type { Session } from 'next-auth'
-import { SessionProvider } from 'next-auth/react'
-import type { AppProps } from 'next/app'
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
+import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import type { AppProps } from "next/app";
+import { RainbowKitProvider, getDefaultWallets } from "@rainbow-me/rainbowkit";
+import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
+
+//import components
+import Layout from "../components/layout";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [
-    chain.mainnet,
-    chain.polygon,
-    chain.optimism,
-    chain.arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
-      ? [
-          chain.goerli,
-          chain.kovan,
-          chain.rinkeby,
-          chain.ropsten,
-          chain.localhost,
-        ]
-      : []),
+    // chain.mainnet,
+    // chain.polygon,
+    // chain.optimism,
+    // chain.arbitrum,
+    // ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true'
+    //   ? [chain.goerli, chain.kovan, chain.rinkeby, chain.ropsten]
+    //   : []),
+    chain.hardhat,
+    chain.polygonMumbai,
   ],
   [
-    alchemyProvider({ apiKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC' }),
+    // alchemyProvider({
+    //   // This is Alchemy's default API key.
+    //   // You can get your own at https://dashboard.alchemyapi.io
+    //   apiKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+    // }),
     publicProvider(),
   ]
-)
+);
 
-const { wallets } = getDefaultWallets({
-  appName: 'RainbowKit demo',
+const { connectors } = getDefaultWallets({
+  appName: "RainbowKit App",
   chains,
-})
-
-const demoAppInfo = {
-  appName: 'Rainbowkit Demo',
-}
-
-const connectors = connectorsForWallets(wallets)
+});
 
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
   provider,
   webSocketProvider,
-})
+});
 
-const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: 'Sign in to the RainbowKit + SIWE example app',
-})
-
-export default function App({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppProps<{ session: Session }>) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <SessionProvider refetchInterval={0} session={session}>
-      <WagmiConfig client={wagmiClient}>
-        <RainbowKitSiweNextAuthProvider
-          getSiweMessageOptions={getSiweMessageOptions}
-        >
-          <RainbowKitProvider
-            appInfo={demoAppInfo}
-            chains={chains}
-            theme={darkTheme({
-              borderRadius: 'small',
-            })}
-          >
-            <ChakraProvider>
-              <Component {...pageProps} />
-            </ChakraProvider>
-          </RainbowKitProvider>
-        </RainbowKitSiweNextAuthProvider>
-      </WagmiConfig>
-    </SessionProvider>
-  )
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitProvider chains={chains}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </RainbowKitProvider>
+    </WagmiConfig>
+  );
 }
+
+export default MyApp;

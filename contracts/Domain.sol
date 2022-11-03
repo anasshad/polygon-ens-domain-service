@@ -7,8 +7,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./library/StringUtils.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Domains is ERC721URIStorage {
+contract Domains is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -23,6 +24,12 @@ contract Domains is ERC721URIStorage {
     //mappings
     mapping(string => address) public domains;
     mapping(string => string) public records;
+    mapping(uint => string) public names;
+
+    //errors
+    error Unauthorized();
+    error AlreadyRegistered();
+    error InvalidName(string name);
 
     constructor(string memory _tld) payable ERC721("Lit Name Service", "LNS") {
         tld = _tld;
@@ -41,8 +48,21 @@ contract Domains is ERC721URIStorage {
         }
     }
 
+    function getAllNames() public view returns (string[] memory) {
+        string[] memory allNames = new string[](_tokenIds.current());
+        for (uint i = 0; i < _tokenIds.current(); i++) {
+            allNames[i] = names[i];
+        }
+        return allNames;
+    }
+
+    function valid(string calldata name) public pure returns (bool) {
+        return (name).toSlice().len() >= 3 && (name).toSlice().len() <= 10;
+    }
+
     function register(string calldata name) public payable {
-        require(domains[name] == address(0));
+        if (domains[name] != address(0)) revert AlreadyRegistered();
+        if (!valid(name)) revert InvalidName(name);
 
         uint _price = getPrice(name);
         require(msg.value >= _price, "Matic amount is not enough");
@@ -84,7 +104,7 @@ contract Domains is ERC721URIStorage {
     }
 
     function setRecord(string calldata name, string calldata record) public {
-        require(domains[name] == msg.sender);
+        if (msg.sender != domains[name]) revert Unauthorized();
         records[name] = record;
     }
 
@@ -94,5 +114,11 @@ contract Domains is ERC721URIStorage {
         returns (string memory)
     {
         return records[name];
+    }
+
+    function withdraw() public onlyOwner {
+        uint amount = address(this).balance;
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Failed to withdraw");
     }
 }

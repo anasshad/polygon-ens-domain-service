@@ -16,6 +16,12 @@ const main = async () => {
     const domainOwner = await domainContract.getAddress('ens');
     console.log('Owner of domain: ', domainOwner);
 
+    try{
+        txn = await domainContract.connect(user).withdraw();
+        await txn.wait();
+    } catch(error){
+        console.log('Could not rob')
+    }
 }
 
 const runMain = async() => {
