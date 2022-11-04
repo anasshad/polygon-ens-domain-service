@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Typography, TextField, Button, Stack } from "@mui/material";
+import {
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  InputAdornment,
+} from "@mui/material";
 
 //For web3
 import { useContract, useSigner, useAccount } from "wagmi";
@@ -49,6 +55,9 @@ export default function Update() {
         onChange={(e) => setDomain(e.target.value)}
         placeholder="Enter Domain Name"
         variant="outlined"
+        InputProps={{
+          endAdornment: <InputAdornment position="end">.lit</InputAdornment>,
+        }}
       />
       <div>Current Record: {record}</div>
       <Button variant="contained" onClick={fetchRecord}>
